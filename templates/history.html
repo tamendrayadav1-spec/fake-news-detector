@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Analysis History &middot; Fake News Detector{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <h1>Analysis History</h1>
+  <p>Every article you've analyzed is saved here so you can revisit the full dashboard anytime.</p>
+</div>
+
+<div class="stats-row">
+  <div class="stat-pill">Total: <b>{{ stats.total }}</b></div>
+  <div class="stat-pill">FAKE: <b>{{ stats.fake }}</b></div>
+  <div class="stat-pill">REAL: <b>{{ stats.real }}</b></div>
+</div>
+
+<div class="card">
+  {% if records %}
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Snippet</th>
+          <th>Prediction</th>
+          <th>Credibility</th>
+          <th>Suspicious Flags</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+          <tr>
+            <td>{{ r.id }}</td>
+            <td><span class="snippet">{{ r.news_text }}</span></td>
+            <td><span class="badge-pred {{ r.prediction }}">{{ r.prediction }}</span></td>
+            <td>{{ r.credibility_score }}</td>
+            <td>{{ r.suspicious_count }}</td>
+            <td style="color:var(--muted); font-size:0.85rem;">{{ r.created_at }}</td>
+            <td><a class="btn btn-secondary" style="padding:6px 14px; font-size:0.85rem;"
+                   href="{{ url_for('history_detail', analysis_id=r.id) }}">View</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <form action="{{ url_for('history_clear') }}" method="POST" style="margin-top:18px;"
+          onsubmit="return confirm('Clear all history? This cannot be undone.');">
+      <button class="btn btn-secondary" type="submit">Clear History</button>
+    </form>
+  {% else %}
+    <p style="color:var(--muted);">No analyses yet. <a href="{{ url_for('index') }}">Analyze your first article</a>.</p>
+  {% endif %}
+</div>
+{% endblock %}
