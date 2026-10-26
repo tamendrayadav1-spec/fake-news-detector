@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Fake News Detection System{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="navbar">
+    <a class="brand" href="{{ url_for('index') }}"><span class="dot"></span> FakeNews Detector</a>
+    <nav>
+      <a href="{{ url_for('index') }}">Analyze</a>
+      <a href="{{ url_for('history') }}">History</a>
+    </nav>
+  </div>
+
+  <div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for m in messages %}
+          <div class="flash">{{ m }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+
+    <div class="footer-note">
+      BCA 5th Semester Minor Project &middot; Fake News Detection System &middot;
+      TF-IDF + Logistic Regression &middot; Flask + SQLite
+    </div>
+  </div>
+</body>
+</html>
