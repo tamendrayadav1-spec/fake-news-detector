@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Analysis Result &middot; Fake News Detector{% endblock %}
+
+{% block content %}
+
+<div class="result-banner {{ 'fake' if result.prediction == 'FAKE' else 'real' }}">
+  <div>
+    <div class="verdict">{{ '🚫 FAKE' if result.prediction == 'FAKE' else '✅ REAL' }}</div>
+    <div class="confidence">Model confidence: {{ result.confidence }}%</div>
+  </div>
+  <div class="gauge-wrap">
+    <div class="score-circle" style="border-color:
+        {% if result.credibility_score >= 70 %}var(--real)
+        {% elif result.credibility_score >= 40 %}var(--warn)
+        {% else %}var(--fake){% endif %};">
+      {{ result.credibility_score }}
+    </div>
+    <div>
+      <div style="font-weight:700;">Credibility Score</div>
+      <div style="color:var(--muted); font-size:0.85rem;">out of 100</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Analyzed Text</h3>
+  <p style="color:var(--muted); font-style:italic;">"{{ news_text[:500] }}{% if news_text|length > 500 %}...{% endif %}"</p>
+  {% if source %}
+    <p style="color:var(--muted); font-size:0.85rem;">Source provided: <strong>{{ source }}</strong></p>
+  {% endif %}
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>🚩 Suspicious Claim Detection</h3>
+    {% if result.claims %}
+      {% for claim in result.claims %}
+        <div class="claim-item">
+          <div class="claim-type">{{ claim.type }}</div>
+          <div class="claim-evidence">"{{ claim.evidence }}"</div>
+          <div class="claim-desc">{{ claim.description }}</div>
+        </div>
+      {% endfor %}
+      <p style="color:var(--muted); font-size:0.85rem;">Suspicion score: {{ result.suspicion_score }}/100</p>
+    {% else %}
+      <p class="no-claims">No obvious suspicious writing patterns detected.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h3>🔗 Source Analysis</h3>
+    <span class="source-badge {{ result.source_info.credibility }}">{{ result.source_info.verdict }}</span>
+    {% if result.source_info.domain %}
+      <p style="font-size:0.9rem;"><strong>Domain:</strong> {{ result.source_info.domain }}</p>
+    {% endif %}
+    <p style="color:var(--muted); font-size:0.9rem;">{{ result.source_info.detail }}</p>
+  </div>
+</div>
+
+<div class="card">
+  <h3>💡 Explainable Result — Why this verdict?</h3>
+  <p style="color:var(--muted); font-size:0.9rem;">
+    The model is a Logistic Regression classifier trained on TF-IDF weighted words.
+    Below are the words/phrases from <em>this article</em> that most pushed the
+    prediction toward each class.
+  </p>
+  <div class="grid-2">
+    <div>
+      <strong style="color:var(--fake);">Pushed toward FAKE</strong>
+      <div class="tag-list">
+        {% if result.explanation.fake_indicators %}
+          {% for word in result.explanation.fake_indicators %}
+            <span class="tag fake-word">{{ word }}</span>
+          {% endfor %}
+        {% else %}
+          <span style="color:var(--muted); font-size:0.85rem;">None found</span>
+        {% endif %}
+      </div>
+    </div>
+    <div>
+      <strong style="color:var(--real);">Pushed toward REAL</strong>
+      <div class="tag-list">
+        {% if result.explanation.real_indicators %}
+          {% for word in result.explanation.real_indicators %}
+            <span class="tag real-word">{{ word }}</span>
+          {% endfor %}
+        {% else %}
+          <span style="color:var(--muted); font-size:0.85rem;">None found</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>🔍 Evidence Collection</h3>
+  <p style="color:var(--muted); font-size:0.9rem;">
+    This project runs fully offline, so instead of an automated live fact-check API call,
+    here are direct links to trusted fact-checking platforms with a ready-made search query
+    based on this article's keywords (<em>{{ result.keywords | join(", ") }}</em>).
+  </p>
+  <ul class="evidence-list">
+    {% for e in result.evidence %}
+      <li><a href="{{ e.url }}" target="_blank" rel="noopener">{{ e.name }}</a> — search: "{{ e.suggested_query }}"</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="actions-row">
+  <a class="btn" href="{{ url_for('index') }}">Analyze Another</a>
+  <a class="btn btn-secondary" href="{{ url_for('history') }}">View History</a>
+</div>
+
+{% endblock %}
