@@ -1,0 +1,56 @@
+
+{% extends "base.html" %}
+{% block title %}Analyze News &middot; Fake News Detector{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <h1>Is that news real, or fake?</h1>
+  <p>Paste a news article or forwarded message below. The system runs it through a
+     TF-IDF + Logistic Regression classifier, checks for suspicious writing
+     patterns, evaluates the source, and explains exactly why it reached its verdict.</p>
+</div>
+
+<div class="stats-row">
+  <div class="stat-pill">Analyses run: <b>{{ stats.total }}</b></div>
+  <div class="stat-pill">Flagged FAKE: <b>{{ stats.fake }}</b></div>
+  <div class="stat-pill">Flagged REAL: <b>{{ stats.real }}</b></div>
+</div>
+
+<div class="card">
+  <h2>News Input</h2>
+  <form action="{{ url_for('analyze') }}" method="POST">
+    <div class="field">
+      <label for="news_text">Article / message text</label>
+      <textarea id="news_text" name="news_text" rows="8"
+                placeholder="Paste the full news article or forwarded message here..." required></textarea>
+    </div>
+    <div class="field">
+      <label for="source">Source URL or publication name (optional)</label>
+      <input type="text" id="source" name="source" placeholder="e.g. https://www.bbc.com/news/... or 'WhatsApp forward'">
+    </div>
+    <button class="btn" type="submit">Analyze News</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>What you'll get</h3>
+  <div class="grid-2">
+    <div>
+      <p><strong>✅ REAL / FAKE Prediction</strong><br>
+      <span style="color:var(--muted)">From a trained ML model, with a confidence score.</span></p>
+      <p><strong>📊 Credibility Score</strong><br>
+      <span style="color:var(--muted)">A combined 0–100 score factoring in the model, writing patterns, and source.</span></p>
+      <p><strong>🚩 Suspicious Claim Detection</strong><br>
+      <span style="color:var(--muted)">Flags sensational language, clickbait, vague attribution, and more.</span></p>
+    </div>
+    <div>
+      <p><strong>🔗 Source Analysis</strong><br>
+      <span style="color:var(--muted)">Checks the domain against known credible / low-credibility patterns.</span></p>
+      <p><strong>🔍 Evidence Pointers</strong><br>
+      <span style="color:var(--muted)">Ready-made search queries for trusted fact-checking sites.</span></p>
+      <p><strong>💡 Explainable Result</strong><br>
+      <span style="color:var(--muted)">Shows exactly which words pushed the verdict toward FAKE or REAL.</span></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
